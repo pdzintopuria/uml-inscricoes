@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UML — Inscrição de Atletas</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #0b0d10;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px 15px 40px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #1f2937;
+      margin-bottom: 25px;
+    }
+
+    .logo-uml {
+      font-size: 36px;
+      font-weight: 900;
+      font-style: italic;
+      color: #0066ff;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      text-shadow: 0 0 12px rgba(0, 102, 255, 0.4);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    h1, h2 {
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 8px;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      color: #9ca3af;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      background: #0b0d10;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: #0066ff;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: #0066ff;
+      color: #fff;
+      font-weight: bold;
+      padding: 13px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #0052cc;
+    }
+
+    /* Tela de Inscrições Fechadas */
+    .closed-box {
+      text-align: center;
+      padding: 40px 10px;
+    }
+    .closed-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+    .closed-box h2 {
+      color: #ef4444;
+      font-size: 22px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Modal Secreto de Login */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: #111827;
+      border: 1px solid #0066ff;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color: #9ca3af;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Estilos do Painel ADM */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .status-open { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+    .status-closed { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+
+    .adm-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    .btn-toggle {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn-toggle.open { background: #10b981; color: #fff; }
+    .btn-toggle.close { background: #ef4444; color: #fff; }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    th {
+      background: #0b0d10;
+      color: #9ca3af;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .btn-sec {
+      background: #1f2937;
+      color: #fff;
+      border: 1px solid #374151;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #10b981;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-uml">UML</div>
+  </header>
+
+  <!-- PÁGINA PÚBLICA DE INSCRIÇÃO DOS ATLETAS -->
+  <main id="user-view" class="container">
+    <div id="registration-open" class="hidden">
+      <h1>Inscrição de Atleta</h1>
+      <p class="subtitle">Preencha os dados abaixo para se inscrever no próximo evento.</p>
+      
+      <div id="success-msg" class="alert-success hidden">
+        Inscrição realizada com sucesso! Aguarde a confirmação.
+      </div>
+
+      <form id="signup-form" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="fullname">Nome e Sobrenome</label>
+          <input type="text" id="fullname" placeholder="Ex: Lucas Silva" required>
+        </div>
+
+        <div class="form-group">
+          <label for="weightclass">Categoria de Peso</label>
+          <select id="weightclass" required>
+            <option value="" disabled selected>Selecione a categoria</option>
+            <option value="Peso Leve (Lightweight)">Peso Leve (Lightweight)</option>
+            <option value="Peso Meio-Médio (Welterweight)">Peso Meio-Médio (Welterweight)</option>
+            <option value="Peso Pesado (Heavyweight)">Peso Pesado (Heavyweight)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="country">País</label>
+          <input type="text" id="country" placeholder="Ex: Brasil" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Enviar Inscrição</button>
+      </form>
+    </div>
+
+    <div id="registration-closed" class="closed-box hidden">
+      <div class="closed-icon">🔒</div>
+      <h2>Inscrições Fechadas</h2>
+      <p class="subtitle" style="margin-top:10px;">Não há eventos com inscrições abertas no momento. Volte mais tarde!</p>
+    </div>
+  </main>
+
+  <!-- MODAL SECRETO DE LOGIN ADM -->
+  <div id="modal-login" class="modal-overlay hidden">
+    <div class="modal-card">
+      <span class="close-modal" onclick="closeModalLogin()">&times;</span>
+      <h2>Acesso Restrito ADM</h2>
+      <p class="subtitle">Digite a senha para continuar.</p>
+      <div class="form-group">
+        <input type="password" id="adm-pass" placeholder="Senha ADM">
+      </div>
+      <button class="btn-primary" onclick="checkPass()">Entrar</button>
+    </div>
+  </div>
+
+  <!-- PAINEL ADMINISTRATIVO SECRETO -->
+  <main id="adm-view" class="container hidden">
+    <div class="adm-controls">
+      <div>
+        <span style="font-size: 12px; color:#9ca3af; font-weight:bold;">STATUS DAS INSCRIÇÕES:</span><br>
+        <span id="status-indicator" class="status-badge">...</span>
+      </div>
+      <button id="toggle-btn" class="btn-toggle" onclick="toggleStatus()"></button>
+    </div>
+
+    <h2>Inscrições Recebidas (<span id="total-count">0</span>)</h2>
+    
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome / Sobrenome</th>
+            <th>Categoria</th>
+            <th>País</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="athletes-list">
+          <!-- Atletas inscritos entram aqui via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <button class="btn-sec" onclick="logoutAdm()">Sair do Painel ADM</button>
+  </main>
+
+  <script>
+    const ADM_PASS = "umltop67";
+    let typedBuffer = "";
+
+    // DETECTOR DA PALAVRA SECRETA "uml"
+    window.addEventListener('keydown', (e) => {
+      // Ignora digitação se o usuário estiver digitando em um input
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        return;
+      }
+
+      typedBuffer += e.key.toLowerCase();
+      
+      // Mantém apenas os últimos 3 caracteres
+      if (typedBuffer.length > 3) {
+        typedBuffer = typedBuffer.slice(-3);
+      }
+
+      // Se a palavra 'uml' for digitada na tela
+      if (typedBuffer === 'uml') {
+        typedBuffer = "";
+        openModalLogin();
+      }
+    });
+
+    function getStatus() {
+      return localStorage.getItem('uml_status') || 'closed';
+    }
+
+    function setStatus(status) {
+      localStorage.setItem('uml_status', status);
+      updateUI();
+    }
+
+    function getAthletes() {
+      return JSON.parse(localStorage.getItem('uml_athletes') || '[]');
+    }
+
+    function setAthletes(list) {
+      localStorage.setItem('uml_athletes', JSON.stringify(list));
+      renderAthletes();
+    }
+
+    function updateUI() {
+      const status = getStatus();
+      const openBox = document.getElementById('registration-open');
+      const closedBox = document.getElementById('registration-closed');
+      const statusIndicator = document.getElementById('status-indicator');
+      const toggleBtn = document.getElementById('toggle-btn');
+
+      if (status === 'open') {
+        openBox.classList.remove('hidden');
+        closedBox.classList.add('hidden');
+        statusIndicator.textContent = "ABERTAS";
+        statusIndicator.className = "status-badge status-open";
+        toggleBtn.textContent = "FECHAR INSCRIÇÕES";
+        toggleBtn.className = "btn-toggle close";
+      } else {
+        openBox.classList.add('hidden');
+        closedBox.classList.remove('hidden');
+        statusIndicator.textContent = "FECHADAS";
+        statusIndicator.className = "status-badge status-closed";
+        toggleBtn.textContent = "ABRIR INSCRIÇÕES";
+        toggleBtn.className = "btn-toggle open";
+      }
+    }
+
+    // Gerenciamento do Modal e Painel ADM
+    function openModalLogin() {
+      document.getElementById('modal-login').classList.remove('hidden');
+      document.getElementById('adm-pass').focus();
+    }
+
+    function closeModalLogin() {
+      document.getElementById('modal-login').classList.add('hidden');
+      document.getElementById('adm-pass').value = "";
+    }
+
+    function checkPass() {
+      const input = document.getElementById('adm-pass').value;
+      if (input === ADM_PASS) {
+        closeModalLogin();
+        document.getElementById('user-view').classList.add('hidden');
+        document.getElementById('adm-view').classList.remove('hidden');
+        renderAthletes();
+      } else {
+        alert("Senha incorreta!");
+      }
+    }
+
+    function logoutAdm() {
+      document.getElementById('adm-view').classList.add('hidden');
+      document.getElementById('user-view').classList.remove('hidden');
+    }
+
+    function toggleStatus() {
+      const current = getStatus();
+      setStatus(current === 'open' ? 'closed' : 'open');
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('fullname').value.trim();
+      const weight = document.getElementById('weightclass').value;
+      const country = document.getElementById('country').value.trim();
+
+      if (!name || !weight || !country) return;
+
+      const list = getAthletes();
+      list.push({ id: Date.now(), name, weight, country });
+      setAthletes(list);
+
+      document.getElementById('signup-form').reset();
+      const msg = document.getElementById('success-msg');
+      msg.classList.remove('hidden');
+      setTimeout(() => msg.classList.add('hidden'), 4000);
+    }
+
+    function renderAthletes() {
+      const list = getAthletes();
+      const tbody = document.getElementById('athletes-list');
+      document.getElementById('total-count').textContent = list.length;
+
+      tbody.innerHTML = "";
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#6b7280; padding:20px;">Nenhuma inscrição cadastrada.</td></tr>`;
+        return;
+      }
+
+      list.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(item.name)}</strong></td>
+          <td>${escapeHtml(item.weight)}</td>
+          <td>${escapeHtml(item.country)}</td>
+          <td><button class="btn-danger" onclick="deleteAthlete(${item.id})">Remover</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteAthlete(id) {
+      if (confirm("Deseja remover esta inscrição?")) {
+        const list = getAthletes().filter(a => a.id !== id);
+        setAthletes(list);
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    updateUI();
+  </script>
+</body>
+</html>
